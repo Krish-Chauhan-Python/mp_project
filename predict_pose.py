@@ -103,7 +103,6 @@ def load_and_train_model():
     )
     
     print("Training ANN model...")
-    # Create and train ANN with better hyperparameters
     model = MLPClassifier(
         hidden_layer_sizes=(256, 128, 64),
         activation='relu',
@@ -118,13 +117,11 @@ def load_and_train_model():
     
     model.fit(X_train, y_train)
     
-    # Evaluate
     train_score = model.score(X_train, y_train)
     test_score = model.score(X_test, y_test)
     print(f"Training accuracy: {train_score:.3f}")
     print(f"Testing accuracy: {test_score:.3f}")
     
-    # Save model, scaler and encoder
     with open(MODEL_PATH, "wb") as f:
         pickle.dump(model, f)
     with open(SCALER_PATH, "wb") as f:
@@ -137,7 +134,6 @@ def load_and_train_model():
 
 
 def load_model():
-    """Load trained model from disk"""
     if not all(os.path.exists(p) for p in [MODEL_PATH, SCALER_PATH, ENCODER_PATH]):
         print("Model files not found. Training new model...")
         return load_and_train_model()
@@ -161,7 +157,6 @@ def draw_landmarks_on_image(
     left_distance=None,
     face_status=None,
 ):
-    """Draw hand landmarks and prediction on image"""
     annotated_image = image.copy()
     height, width = annotated_image.shape[:2]
     
@@ -177,7 +172,6 @@ def draw_landmarks_on_image(
             if start_idx < len(points) and end_idx < len(points):
                 cv2.line(annotated_image, points[start_idx], points[end_idx], (0, 255, 255), 2)
     
-    # Display prediction with confidence
     if predicted_pose:
         text = f"Pose: {predicted_pose}"
         if confidence is not None:
@@ -218,15 +212,12 @@ def draw_landmarks_on_image(
 
 
 def predict_pose_realtime():
-    """Run real-time pose prediction"""
-    # Load or train model
     model, scaler, label_encoder = load_model()
     
     if model is None:
         print("Failed to load or train model. Exiting...")
         return
     
-    # Load face recognizer and cascade
     if not os.path.exists(FACE_MODEL_PATH):
         print(f"Error: {FACE_MODEL_PATH} not found!")
         print("Run enroll_face.py to record your face first.")
@@ -243,7 +234,6 @@ def predict_pose_realtime():
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
     face_recognizer.read(FACE_MODEL_PATH)
 
-    # Initialize MediaPipe
     cap = cv2.VideoCapture(0)
     base_options = python.BaseOptions(model_asset_path="hand_landmarker.task")
     options = vision.HandLandmarkerOptions(base_options=base_options, num_hands=2)
@@ -257,7 +247,6 @@ def predict_pose_realtime():
         if not ret:
             continue
         
-        # Detect hand
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
         detection_result = detector.detect(image)
@@ -282,7 +271,6 @@ def predict_pose_realtime():
                 face_status = f"Face: unknown ({similarity:.0%})"
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 200, 0), 2)
 
-        # Predict pose on right hand and measure left thumb-index distance
         if face_ok and detection_result.hand_landmarks:
             height, width = frame.shape[:2]
             for i, hand_landmarks in enumerate(detection_result.hand_landmarks):
@@ -309,7 +297,6 @@ def predict_pose_realtime():
                     normalized = (distance_px - LEFT_MIN_PX) / (LEFT_MAX_PX - LEFT_MIN_PX)
                     left_distance = max(0.0, min(1.0, normalized)) * 100.0
         
-        # Draw annotated frame
         annotated = draw_landmarks_on_image(
             frame,
             detection_result,
@@ -334,9 +321,9 @@ def predict_pose_realtime():
     cv2.destroyAllWindows()
 
 
-if __name__ == "__main__":
-    if not os.path.exists(CSV_PATH):
-        print(f"Error: {CSV_PATH} not found!")
-        print("Please run makedataset.py first to collect training data.")
-    else:
-        predict_pose_realtime()
+
+if not os.path.exists(CSV_PATH):
+    print(f"Error: {CSV_PATH} not found!")
+    print("Please run makedataset.py first to collect training data.")
+else:
+    predict_pose_realtime()
