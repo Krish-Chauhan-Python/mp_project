@@ -106,7 +106,7 @@ def load_and_train_model():
     # Create and train ANN with better hyperparameters
     model = MLPClassifier(
         hidden_layer_sizes=(256, 128, 64),
-        activation='swish',
+        activation='relu',
         solver='adam',
         max_iter=1000,
         random_state=42,
