@@ -1,0 +1,13 @@
+{
+  "gestures": [
+    "up",
+    "down",
+    "left",
+    "right",
+    "close",
+    "open",
+    "yo",
+    "none",
+    "4 fingers only"
+  ]
+}

@@ -321,9 +321,10 @@ def predict_pose_realtime():
     cv2.destroyAllWindows()
 
 
-
-if not os.path.exists(CSV_PATH):
-    print(f"Error: {CSV_PATH} not found!")
-    print("Please run makedataset.py first to collect training data.")
-else:
-    predict_pose_realtime()
+# Only run if executed directly, not when imported
+if __name__ == "__main__":
+    if not os.path.exists(CSV_PATH):
+        print(f"Error: {CSV_PATH} not found!")
+        print("Please run makedataset.py first to collect training data.")
+    else:
+        predict_pose_realtime()

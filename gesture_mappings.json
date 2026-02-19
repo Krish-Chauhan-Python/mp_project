@@ -1,0 +1,13 @@
+{
+  "mappings": {
+    "up": "volume_up",
+    "down": "volume_down",
+    "left": "prev_tab",
+    "right": "next_tab",
+    "close": "switch_window",
+    "open": "none",
+    "yo": "none",
+    "none": "none",
+    "4 fingers only": "stop_camera"
+  }
+}
